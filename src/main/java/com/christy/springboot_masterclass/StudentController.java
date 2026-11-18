@@ -1,7 +1,7 @@
 package com.christy.springboot_masterclass;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
 
 // StudentController – receives requests from users
 @RestController // Provides REST API functionality
@@ -24,11 +22,6 @@ public class StudentController {
     public StudentController(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
-
-    // Shared List at Class Level - POST: Add Student & GET: Returns List of Students
-//    private ArrayList<Student> students = new ArrayList<>();
-//
-//    private int nextId = 1;
 
     // http://localhost:8081/students
     @PostMapping("/students") // CREATE METHOD
@@ -214,37 +207,3 @@ public class StudentController {
     }
 
 }
-
-// http://localhost:8081/students/course/Java
-//    @GetMapping("/students/course/{course}")
-//    public List<Student> getStudentsByCourse(@PathVariable String course) {
-//        return studentRepository.findByCourse(course);
-//    }
-
-// http://localhost:8081/students/level/Beginner
-//    @GetMapping("/students/level/{level}")
-//    public List<Student> getStudentsByLevel(@PathVariable String level) {
-//        return studentRepository.findByLevel(level);
-//    }
-
-// http://localhost:8081/students/Java/Beginner
-//    @GetMapping("/students/{course}/{level}")
-//    public List<Student> getStudentsByCourseAndLevel(@PathVariable String course, @PathVariable String level) {
-//        return studentRepository.findByCourseAndLevel(course, level);
-//    }
-
-//    @GetMapping("/students/email/{email}")
-//    public List<Student> getStudentsByEmail(@PathVariable String email) {
-//        return studentRepository.findByEmail(email);
-//    }
-
-//    }
-
-//    @DeleteMapping("/students/{id}") // DELETE METHOD
-//    public String deleteStudent(@PathVariable int id) {
-//        if (studentRepository.existsById(id)) {
-//            studentRepository.deleteById(id);
-//            return "Student deleted!";
-//        }
-//        return "Student not found!";
-//    }
