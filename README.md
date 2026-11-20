@@ -17,6 +17,16 @@ The application uses Spring Data JPA and MySQL for data persistence, with H2 as 
 - **IntelliJ IDEA Community Edition** – Development environment
 - **Postman / HTTP Client** – API testing
 
+## Application Architecture
+
+The application follows a layered architecture that separates responsibilities:
+
+- **Controller Layer (`StudentController`)** – Receives HTTP requests, delegates operations to the service layer, and returns HTTP responses.
+- **Service Layer (`StudentService`)** – Contains application and business logic, coordinates operations, and communicates with the repository layer.
+- **Repository Layer (`StudentRepository`)** – Uses Spring Data JPA to perform database operations.
+
+This separation improves code organisation, maintainability, and testability.
+
 ## Features
 
 - Create new student records
@@ -239,8 +249,9 @@ springboot-masterclass/
 │   │   ├── java/
 │   │   │   └── com/christy/springboot_masterclass/
 │   │   │       ├── Student.java
-│   │   │       ├── StudentController.java
-│   │   │       ├── StudentRepository.java
+                ├── StudentController.java
+                ├── StudentService.java
+                ├── StudentRepository.java
 │   │   │       ├── StudentRequestDTO.java
 │   │   │       ├── StudentUpdateDTO.java
 │   │   │       ├── StudentPatchDTO.java

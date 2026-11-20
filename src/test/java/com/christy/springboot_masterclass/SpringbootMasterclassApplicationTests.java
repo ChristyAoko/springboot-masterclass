@@ -484,7 +484,9 @@ class SpringbootMasterclassApplicationTests {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(patchJson))
 				.andExpect(status().isBadRequest())
-				.andExpect(content().string("Name cannot be blank!"));
+				.andExpect(jsonPath("$.status").value(400))
+				.andExpect(jsonPath("$.message").value("Name cannot be blank!"))
+				.andExpect(jsonPath("$.errors").value(org.hamcrest.Matchers.nullValue()));
 				// .andDo(print());
 
 	}
@@ -511,7 +513,9 @@ class SpringbootMasterclassApplicationTests {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(patchJson))
 				.andExpect(status().isBadRequest())
-				.andExpect(content().string("Course cannot be blank!"));
+				.andExpect(jsonPath("$.status").value(400))
+				.andExpect(jsonPath("$.message").value("Course cannot be blank!"))
+				.andExpect(jsonPath("$.errors").value(org.hamcrest.Matchers.nullValue()));
 				// .andDo(print());
 
 	}
@@ -537,7 +541,9 @@ class SpringbootMasterclassApplicationTests {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(patchJson))
 				.andExpect(status().isBadRequest())
-				.andExpect(content().string("Level cannot be blank!"));
+				.andExpect(jsonPath("$.status").value(400))
+				.andExpect(jsonPath("$.message").value("Level cannot be blank!"))
+				.andExpect(jsonPath("$.errors").value(org.hamcrest.Matchers.nullValue()));
 				// .andDo(print());
 
 	}

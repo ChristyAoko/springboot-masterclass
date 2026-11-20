@@ -3,9 +3,6 @@ package com.christy.springboot_masterclass;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,10 +14,11 @@ import java.net.URI;
 @RestController // Provides REST API functionality
 public class StudentController {
 
-    private final StudentRepository studentRepository;
+    private final StudentService studentService;
 
-    public StudentController(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    // Controller accesses to the Service.
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
     }
 
     // http://localhost:8081/students
@@ -29,12 +27,7 @@ public class StudentController {
     public ResponseEntity<String> addStudent(
             @Valid @RequestBody StudentRequestDTO request) { // Receives and validates the incoming JSON
 
-        Student student = new Student(); // Creates the database entity
-        student.name = request.name; // Copy the validated requests into the entity/table
-        student.course = request.course;
-        student.level = request.level;
-
-        Student savedStudent = studentRepository.save(student); // Saves it, and the database generates the ID
+        Student savedStudent = studentService.createStudent(request); // Saves it via the service, and the database generates the ID
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -44,7 +37,7 @@ public class StudentController {
 
         return ResponseEntity
                 .created(location)
-                .body("Student " + student.name + " added!");      // Sets HTTP Status to 201 OK
+                .body("Student " + savedStudent.name + " added!"); // Sets HTTP Status to 201 Created
     }
 
     // http://localhost:8081/students - sort by name, A to Z
@@ -56,74 +49,21 @@ public class StudentController {
             @RequestParam(defaultValue = "3") int size,   // 3 - return up to 3 students per page
             // http://localhost:8081/students?sortBy=name
             @RequestParam(defaultValue = "name") String sortBy,  // http://localhost:8081/students?sortBy=course - sort by course, A to Z
-            @RequestParam(defaultValue = "asc") String direction
-    )
+            @RequestParam(defaultValue = "asc") String direction) {
 
-            // http://localhost:8081/students?page=1&size=3&sortBy=name&direction=asc - combining pagination and sorting
-
-    {
-        if (size < 1) {
-            throw new IllegalArgumentException("Page size must be at least 1!"); // Size validation
-        }
-
-        if (page < 0) {
-            throw new IllegalArgumentException("Page number cannot be negative!"); // Page number validation
-        }
-
-        if (!sortBy.equals("id")
-                && !sortBy.equals("name")
-                && !sortBy.equals("course")
-                && !sortBy.equals("level")) {
-            throw new IllegalArgumentException(
-                    "Invalid sorting field: " + sortBy // Sorting fields must be id, name, course, or level
-            );
-        }
-
-        if(!direction.equalsIgnoreCase("asc")
-            && !direction.equalsIgnoreCase("desc")) {
-            throw new IllegalArgumentException(
-                    "Direction must be 'asc' or 'desc'!"
-            );
-        }
-
-        Pageable pageable = PageRequest.of(    // creates the pagination and sorting instructions
-                page,                          // specifies which page to retrieve
-                size,                          // specifies how many students to return
-                Sort.by(
-                        direction.equalsIgnoreCase("desc")
-                                ? Sort.Direction.DESC // sorts in descending order // http://localhost:8081/students?sortBy=name&direction=desc
-                                : Sort.Direction.ASC, // sorts in ascending order
-                        sortBy
-                )
-        );
-
-        return studentRepository.findAll(pageable);  // retrieves only the requested page from the database
+        return studentService.getAllStudents(page, size, sortBy, direction);
     }
-
 
     // http://localhost:8081/students/1
     @GetMapping("/students/{id}")
     public Student getStudentById(@PathVariable int id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException(
-                        "Student " + id + " not found!"
-                ));
+        return studentService.getStudentById(id);
     }
 
     // http://localhost:8081/students/1/summary
     @GetMapping("/students/{id}/summary")
     public StudentSummaryDTO getStudentSummary(@PathVariable int id) {
-
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException(
-                        "Student " + id + " not found!"
-                ));
-
-        StudentSummaryDTO dto = new StudentSummaryDTO(); // Creates a new DTO object
-        dto.name = student.name; // Copies the student's name into the DTO
-        dto.course = student.course; // Copies the student's course into the DTO
-
-        return dto;
+        return studentService.getStudentSummary(id);
     }
 
     // http://localhost:8081/students/1
@@ -132,16 +72,7 @@ public class StudentController {
             @PathVariable int id,
             @Valid @RequestBody StudentUpdateDTO request) {
 
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException( // Exception handled by GlobalExceptionHandler
-                        "Student " + id + " not found!"
-                ));
-
-        student.name = request.name; // Update name, course, level
-        student.course = request.course;
-        student.level = request.level;
-
-        studentRepository.save(student);
+        studentService.updateStudent(id, request);
 
         return ResponseEntity.ok("Student " + id + " updated!");
     }
@@ -152,42 +83,7 @@ public class StudentController {
             @PathVariable int id,
             @RequestBody StudentPatchDTO patchData) {
 
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException(
-                        "Student " + id + " not found!"
-                ));
-
-        // Reject supplied fields that are blank
-        if (patchData.course != null && patchData.course.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body("Course cannot be blank!");
-        }
-
-        if (patchData.name != null && patchData.name.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body("Name cannot be blank!");
-        }
-
-        if (patchData.level != null && patchData.level.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body("Level cannot be blank!");
-        }
-
-        // Update only fields included in the request
-        if (patchData.course != null) {
-            student.course = patchData.course;
-        }
-
-        if (patchData.name != null) {
-            student.name = patchData.name;
-        }
-
-        if (patchData.level != null) {
-            student.level = patchData.level;
-        }
-
-        // Persist the changes to H2
-        studentRepository.save(student);
+        studentService.patchStudent(id, patchData);
 
         return ResponseEntity.ok("Student " + id + " updated!");
     }
@@ -196,12 +92,7 @@ public class StudentController {
     @DeleteMapping("/students/{id}") // DELETE METHOD
     public ResponseEntity<String> deleteStudent(@PathVariable int id) {
 
-        Student student = studentRepository.findById(id) // Search for student by id
-                .orElseThrow(() -> new StudentNotFoundException( // If found, returns Student object else throws exception
-                        "Student " + id + " not found!"  // Exception handled by GlobalExceptionHandler
-                ));
-
-        studentRepository.delete(student);  // If found, deletes and returns 200 OK
+        studentService.deleteStudent(id);
 
         return ResponseEntity.ok("Student " + id + " deleted!");
     }
