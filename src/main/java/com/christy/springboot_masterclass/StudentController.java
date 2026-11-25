@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 
 // StudentController – receives requests from users
@@ -66,6 +67,75 @@ public class StudentController {
         return studentService.getStudentSummary(id);
     }
 
+    // http://localhost:8081/students/course/Java
+    @GetMapping("/students/course/{course}")
+    public ResponseEntity<List<Student>> getStudentByCourse(@PathVariable String course) {
+        return ResponseEntity.ok(
+                studentService.getStudentsByCourse(course)
+        );
+    }
+
+    // http://localhost:8081/students/course/Java/level/Beginner
+    @GetMapping("/students/course/{course}/level/{level}")
+    public ResponseEntity<List<Student>> getStudentsByCourseAndLevel (
+            @PathVariable String course,
+            @PathVariable String level) {
+
+        return ResponseEntity.ok(
+                studentService.getStudentsByCourseAndLevel(course, level)
+        );
+    }
+
+    // http://localhost:8081/students/course/Java/sorted
+    @GetMapping("/students/course/{course}/sorted")
+    public ResponseEntity<List<Student>> getStudentsByCourseSortedByName(
+            @PathVariable String course) {
+
+        return ResponseEntity.ok(
+                studentService.getStudentsByCourseSortedByName(course)
+        );
+    }
+
+    // http://localhost:8081/students/search?keyword=Gra - Case sensitive
+    @GetMapping("/students/search")
+    public ResponseEntity<List<Student>> searchStudentsByName(
+            @RequestParam String keyword) {
+
+        return ResponseEntity.ok(
+                studentService.searchStudentsByName(keyword)
+        );
+    }
+
+    // http://localhost:8081/students/search/ignore-case?keyword=grace
+    @GetMapping("/students/search/ignore-case")
+    public ResponseEntity<List<Student>> searchStudentsByNameIgnoreCase(
+            @RequestParam String keyword) {
+
+        return ResponseEntity.ok(
+                studentService.searchStudentsByNameIgnoreCase(keyword)
+        );
+    }
+
+    // http://localhost:8081/students/exists?name=Grace
+    @GetMapping("/students/exists")
+    public ResponseEntity<Boolean> studentExistsByName(
+            @RequestParam String name) {
+
+        return ResponseEntity.ok(
+                studentService.studentExistsByName(name)
+        );
+    }
+
+    // http://localhost:8081/students/count?course=Java
+    @GetMapping("/students/count")
+    public ResponseEntity<Long> countStudentsByCourse(
+            @RequestParam String course) {
+
+        return ResponseEntity.ok(
+                studentService.countStudentsByCourse(course)
+        );
+    }
+
     // http://localhost:8081/students/1
     @PutMapping("/students/{id}") // UPDATE METHOD
     public ResponseEntity<String> updateStudent(
@@ -95,6 +165,18 @@ public class StudentController {
         studentService.deleteStudent(id);
 
         return ResponseEntity.ok("Student " + id + " deleted!");
+    }
+
+    // http://localhost:8081/students/course/Java
+    @DeleteMapping("/students/course/{course}")
+    public ResponseEntity<String> deleteStudentsByCourse(
+            @PathVariable String course) {
+
+        long deletedCount = studentService.deleteStudentsByCourse(course);
+
+        return ResponseEntity.ok(
+                deletedCount + " students deleted"
+        );
     }
 
 }

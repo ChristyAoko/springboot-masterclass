@@ -5,6 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service // Tells Spring that this class is a Service component
 public class StudentService {
@@ -142,6 +145,39 @@ public class StudentService {
 
         studentRepository.delete(student);
 
+    }
+
+    public List<Student> getStudentsByCourse(String course) {
+        return studentRepository.findByCourse(course);
+    }
+
+    public List<Student> getStudentsByCourseAndLevel(String course, String level) {
+        return studentRepository.findByCourseAndLevel(course, level);
+    }
+
+    public List<Student> getStudentsByCourseSortedByName(String course) {
+        return studentRepository.findByCourseOrderByNameAsc(course);
+    }
+
+    public List<Student> searchStudentsByName(String keyword) {
+        return studentRepository.findByNameContaining(keyword);
+    }
+
+    public List<Student> searchStudentsByNameIgnoreCase(String keyword) {
+        return studentRepository.findByNameContainingIgnoreCase(keyword);
+    }
+
+    public boolean studentExistsByName(String name) {
+        return studentRepository.existsByName(name);
+    }
+
+    public long countStudentsByCourse(String course) {
+        return studentRepository.countByCourse(course);
+    }
+
+    @Transactional // Ensures that a dB operation completes properly
+    public long deleteStudentsByCourse(String course) {
+        return studentRepository.deleteByCourse(course);
     }
 
 }

@@ -249,9 +249,9 @@ springboot-masterclass/
 │   │   ├── java/
 │   │   │   └── com/christy/springboot_masterclass/
 │   │   │       ├── Student.java
-                ├── StudentController.java
-                ├── StudentService.java
-                ├── StudentRepository.java
+│   │   │       ├── StudentController.java
+│   │   │       ├── StudentService.java
+│   │   │       ├── StudentRepository.java
 │   │   │       ├── StudentRequestDTO.java
 │   │   │       ├── StudentUpdateDTO.java
 │   │   │       ├── StudentPatchDTO.java

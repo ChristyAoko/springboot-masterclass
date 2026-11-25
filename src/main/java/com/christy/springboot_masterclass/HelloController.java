@@ -55,10 +55,9 @@ public class HelloController {
     }
 
     // URL: http://localhost:8081/students/student
-    @GetMapping("/students/count")
+    @GetMapping("/hello/student-count")
     public String getStudentCount() {
         return "There are 10 students";
     }
-
 
 }
